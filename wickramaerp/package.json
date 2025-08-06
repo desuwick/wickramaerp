@@ -1,0 +1,27 @@
+{
+  "name": "wickramaerp",
+  "version": "1.0.0",
+  "description": "Hardware store pickup order management system for Wick Ram Hardware Stores Pvt Ltd",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "pickup",
+    "orders",
+    "hardware",
+    "store",
+    "management"
+  ],
+  "author": "Wick Ram Hardware Stores Pvt Ltd",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

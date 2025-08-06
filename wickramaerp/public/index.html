@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wickrama Hardware - Pickup Order System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #d5dbdb;
+        }
+        
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .order-card {
+            background: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .order-number {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-received { background: #95a5a6; }
+        .status-approved { background: #f39c12; }
+        .status-packed { background: #3498db; }
+        .status-ready { background: #27ae60; }
+        .status-completed { background: #2c3e50; }
+        
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-bar input {
+            flex: 2;
+            min-width: 200px;
+        }
+        
+        .search-bar select {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .approvals {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .approval {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .print-label {
+            margin-top: 15px;
+            padding: 20px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .print-label.show {
+            display: block;
+        }
+        
+        .label-content {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-label, .print-label * {
+                visibility: visible;
+            }
+            .print-label {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar input,
+            .search-bar select {
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1> Wickrama Hardware Stores Pvt Ltd</h1>
+            <p>Pickup Order Management System</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('new-order')">➕ New Order</button>
+            <button class="tab" onclick="showTab('orders')">📋 Manage Orders</button>
+            <button class="tab" onclick="showTab('search')">🔍 Search</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <h2>📊 Order Statistics</h2>
+            <div class="stats" id="stats-container">
+                <!-- Stats will be loaded here -->
+            </div>
+            
+            <h3>Recent Orders</h3>
+            <div id="recent-orders">
+                <!-- Recent orders will be loaded here -->
+            </div>
+        </div>
+
+        <!-- New Order Tab -->
+        <div id="new-order" class="tab-content">
+            <h2>➕ Create New Order</h2>
+            <div id="order-alert"></div>
+            <form id="order-form">
+                <div class="form-group">
+                    <label for="customer-name">Customer Name *</label>
+                    <input type="text" id="customer-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="customer-phone">Customer Phone *</label>
+                    <input type="tel" id="customer-phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="items">Items List *</label>
+                    <textarea id="items" rows="5" placeholder="Enter items list (one per line or comma-separated)" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment-method">Payment Method *</label>
+                    <select id="payment-method" required>
+                        <option value="">Select payment method</option>
+                        <option value="cash">Cash on Pickup</option>
+                        <option value="prepaid">Prepaid</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="staff-name">Staff Name *</label>
+                    <input type="text" id="staff-name" placeholder="Your name" required>
+                </div>
+                
+                <button type="submit" class="btn">Create Order</button>
+            </form>
+        </div>
+
+        <!-- Manage Orders Tab -->
+        <div id="orders" class="tab-content">
+            <h2>📋 Manage Orders</h2>
+            <div class="search-bar">
+                <select id="status-filter" onchange="filterOrders()">
+                    <option value="all">All Statuses</option>
+                    <option value="received">Received</option>
+                    <option value="approved">Approved</option>
+                    <option value="packed">Packed</option>
+                    <option value="ready">Ready for Pickup</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <button class="btn" onclick="loadOrders()">🔄 Refresh</button>
+            </div>
+            <div id="orders-container">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Search Tab -->
+        <div id="search" class="tab-content">
+            <h2>🔍 Search Orders</h2>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search by customer name, phone, or order number">
+                <select id="search-status-filter">
+                    <option value="all">All Statuses</option>
+                    <option value="received">Received</option>
+                    <option value="approved">Approved</option>
+                    <option value="packed">Packed</option>
+                    <option value="ready">Ready for Pickup</option>
+                    <option value="completed">Completed</option>
+                </select>
+                <button class="btn" onclick="searchOrders()">Search</button>
+            </div>
+            <div id="search-results">
+                <!-- Search results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Label Template -->
+    <div class="print-label" id="print-label">
+        <div class="label-content">
+            <h2>WICKRAMA HARDWARE STORES</h2>
+            <hr>
+            <h3 id="label-order-number"></h3>
+            <p><strong>Customer:</strong> <span id="label-customer-name"></span></p>
+            <p><strong>Invoice:</strong> <span id="label-invoice-number"></span></p>
+            <p><strong>Payment:</strong> <span id="label-payment-method"></span></p>
+            <hr>
+            <p><small>Generated: <span id="label-timestamp"></span></small></p>
+        </div>
+    </div>
+
+    <script>
+        let currentOrders = [];
+        let currentStats = {};
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Load data for specific tabs
+            if (tabName === 'dashboard') {
+                loadDashboard();
+            } else if (tabName === 'orders') {
+                loadOrders();
+            }
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load stats
+                const statsResponse = await fetch('/api/stats');
+                currentStats = await statsResponse.json();
+                displayStats();
+                
+                // Load recent orders
+                const ordersResponse = await fetch('/api/orders');
+                const orders = await ordersResponse.json();
+                displayRecentOrders(orders.slice(-5).reverse());
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Display stats
+        function displayStats() {
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.total || 0}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.today || 0}</div>
+                    <div class="stat-label">Today's Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.received || 0}</div>
+                    <div class="stat-label">Received</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.approved || 0}</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.packed || 0}</div>
+                    <div class="stat-label">Packed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.ready || 0}</div>
+                    <div class="stat-label">Ready</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${currentStats.completed || 0}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            `;
+        }
+
+        // Display recent orders
+        function displayRecentOrders(orders) {
+            const container = document.getElementById('recent-orders');
+            if (orders.length === 0) {
+                container.innerHTML = '<p>No recent orders found.</p>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => createOrderCard(order)).join('');
+        }
+
+        // Create order form submission
+        document.getElementById('order-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                customerName: document.getElementById('customer-name').value,
+                customerPhone: document.getElementById('customer-phone').value,
+                items: document.getElementById('items').value,
+                paymentMethod: document.getElementById('payment-method').value,
+                staffName: document.getElementById('staff-name').value
+            };
+            
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('order-alert', `Order created successfully! Order Number: ${result.order_number}`, 'success');
+                    document.getElementById('order-form').reset();
+                } else {
+                    showAlert('order-alert', 'Error creating order', 'error');
+                }
+            } catch (error) {
+                showAlert('order-alert', 'Network error occurred', 'error');
+            }
+        });
+
+        // Load orders
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                currentOrders = await response.json();
+                filterOrders();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Filter orders by status
+        function filterOrders() {
+            const statusFilter = document.getElementById('status-filter').value;
+            let filteredOrders = currentOrders;
+            
+            if (statusFilter !== 'all') {
+                filteredOrders = currentOrders.filter(order => order.status === statusFilter);
+            }
+            
+            displayOrders(filteredOrders);
+        }
+
+        // Display orders
+        function displayOrders(orders) {
+            const container = document.getElementById('orders-container');
+            if (orders.length === 0) {
+                container.innerHTML = '<p>No orders found.</p>';
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => createOrderCard(order, true)).join('');
+        }
+
+        // Create order card HTML
+        function createOrderCard(order, showActions = false) {
+            const statusClass = `status-${order.status.replace(' ', '-')}`;
+            const canApprove = order.status === 'received' && order.approvals.length < 3;
+            const canPack = order.status === 'approved';
+            const canMarkReady = order.status === 'packed';
+            const canComplete = order.status === 'ready';
+            
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-number">${order.order_number}</div>
+                        <div class="status-badge ${statusClass}">${order.status.toUpperCase()}</div>
+                    </div>
+                    
+                    <div class="order-details">
+                        <div>
+                            <strong>Customer:</strong> ${order.customer_name}<br>
+                            <strong>Phone:</strong> ${order.customer_phone}
+                        </div>
+                        <div>
+                            <strong>Payment:</strong> ${order.payment_method}<br>
+                            <strong>Invoice:</strong> ${order.invoice_number || 'Not set'}
+                        </div>
+                        <div>
+                            <strong>Created:</strong> ${new Date(order.created_at).toLocaleDateString()}<br>
+                            <strong>By:</strong> ${order.created_by}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <strong>Items:</strong> ${order.items}
+                    </div>
+                    
+                    ${order.approvals.length > 0 ? `
+                        <div class="approvals">
+                            <strong>Approvals (${order.approvals.length}/3):</strong>
+                            ${order.approvals.map(approval => `
+                                <div class="approval">
+                                    <span>${approval.staff}</span>
+                                    <span>${new Date(approval.timestamp).toLocaleString()}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${showActions ? `
+                        <div style="margin-top: 15px;">
+                            ${canApprove ? `
+                                <button class="btn btn-warning" onclick="approveOrder('${order.order_number}')">
+                                    ✅ Approve (${order.approvals.length}/3)
+                                </button>
+                            ` : ''}
+                            
+                            ${order.status === 'received' || order.status === 'approved' ? `
+                                <button class="btn" onclick="updateInvoiceNumber('${order.order_number}')">
+                                    📄 Set Invoice Number
+                                </button>
+                            ` : ''}
+                            
+                            ${canPack ? `
+                                <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'packed')">
+                                    📦 Mark as Packed
+                                </button>
+                            ` : ''}
+                            
+                            ${canMarkReady ? `
+                                <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'ready')">
+                                    ✅ Mark as Ready
+                                </button>
+                            ` : ''}
+                            
+                            ${canComplete ? `
+                                <button class="btn" onclick="updateOrderStatus('${order.order_number}', 'completed')">
+                                    🏁 Mark as Completed
+                                </button>
+                            ` : ''}
+                            
+                            ${order.status === 'packed' || order.status === 'ready' ? `
+                                <button class="btn" onclick="printLabel('${order.order_number}')">
+                                    🖨️ Print Label
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Approve order
+        async function approveOrder(orderNumber) {
+            const staffName = prompt('Enter your name for approval:');
+            if (!staffName) return;
+            
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}/approve`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ staffName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Approval added! (${result.approvals}/3 approvals)`);
+                    loadOrders();
+                } else {
+                    alert(result.error || 'Error adding approval');
+                }
+            } catch (error) {
+                alert('Network error occurred');
+            }
+        }
+
+        // Update order status
+        async function updateOrderStatus(orderNumber, status) {
+            const staffName = prompt('Enter your name:');
+            if (!staffName) return;
+            
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status, staffName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Order status updated to: ${status}`);
+                    loadOrders();
+                    if (currentTab === 'dashboard') {
+                        loadDashboard();
+                    }
+                } else {
+                    alert('Error updating status');
+                }
+            } catch (error) {
+                alert('Network error occurred');
+            }
+        }
+
+        // Update invoice number
+        async function updateInvoiceNumber(orderNumber) {
+            const invoiceNumber = prompt('Enter invoice number from ERP:');
+            if (!invoiceNumber) return;
+            
+            const staffName = prompt('Enter your name:');
+            if (!staffName) return;
+            
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        status: currentOrders.find(o => o.order_number === orderNumber).status,
+                        staffName,
+                        invoiceNumber 
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Invoice number updated successfully!');
+                    loadOrders();
+                } else {
+                    alert('Error updating invoice number');
+                }
+            } catch (error) {
+                alert('Network error occurred');
+            }
+        }
+
+        // Search orders
+        async function searchOrders() {
+            const query = document.getElementById('search-input').value;
+            const status = document.getElementById('search-status-filter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (query) params.append('q', query);
+                if (status !== 'all') params.append('status', status);
+                
+                const response = await fetch(`/api/search?${params}`);
+                const orders = await response.json();
+                
+                document.getElementById('search-results').innerHTML = 
+                    orders.map(order => createOrderCard(order, true)).join('');
+            } catch (error) {
+                console.error('Error searching orders:', error);
+            }
+        }
+
+        // Print label
+        async function printLabel(orderNumber) {
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}`);
+                const order = await response.json();
+                
+                if (!order.invoice_number) {
+                    alert('Please set invoice number before printing label');
+                    return;
+                }
+                
+                // Fill label data
+                document.getElementById('label-order-number').textContent = order.order_number;
+                document.getElementById('label-customer-name').textContent = order.customer_name;
+                document.getElementById('label-invoice-number').textContent = order.invoice_number;
+                document.getElementById('label-payment-method').textContent = order.payment_method;
+                document.getElementById('label-timestamp').textContent = new Date().toLocaleString();
+                
+                // Show and print label
+                document.getElementById('print-label').classList.add('show');
+                setTimeout(() => {
+                    window.print();
+                    document.getElementById('print-label').classList.remove('show');
+                }, 500);
+                
+            } catch (error) {
+                alert('Error loading order for label');
+            }
+        }
+
+        // Show alert message
+        function showAlert(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+        });
+
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(() => {
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboard();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
