@@ -53,10 +53,38 @@ function logAudit(action, orderId, staffName, details = '') {
     fs.appendFileSync(AUDIT_LOG, logEntry);
 }
 
+// Serve customer tracking page
+app.get('/track', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'track.html'));
+});
+
+// Customer order lookup API
+app.get('/api/customer-lookup', (req, res) => {
+    const { q } = req.query;
+    const orders = getOrders();
+
+    const order = orders.find(o =>
+        o.order_number.toLowerCase() === q.toLowerCase() ||
+        o.customer_phone.includes(q)
+    );
+
+    if (!order) return res.json({ found: false });
+
+    res.json({
+        found: true,
+        order: {
+            order_number: order.order_number,
+            status: order.status,
+            invoice_number: order.invoice_number,
+            payment_method: order.payment_method,
+            created_at: order.created_at
+        }
+    });
+});
+
 // Create new order
 app.post('/api/orders', (req, res) => {
     const { customerName, customerPhone, items, paymentMethod, staffName } = req.body;
-    
     const orderNumber = generateOrderNumber();
     const newOrder = {
         order_number: orderNumber,
@@ -64,7 +92,7 @@ app.post('/api/orders', (req, res) => {
         customer_phone: customerPhone,
         items: items,
         payment_method: paymentMethod,
-        invoice_number: '', // To be filled later from ERP
+        invoice_number: '',
         status: 'received',
         created_at: new Date().toISOString(),
         created_by: staffName,
@@ -75,13 +103,12 @@ app.post('/api/orders', (req, res) => {
             staff: staffName
         }]
     };
-    
+
     const orders = getOrders();
     orders.push(newOrder);
     saveOrders(orders);
-    
     logAudit('ORDER_CREATED', orderNumber, staffName, `Customer: ${customerName}`);
-    
+
     res.json({ success: true, order_number: orderNumber });
 });
 
@@ -106,30 +133,21 @@ app.put('/api/orders/:orderNumber/status', (req, res) => {
     const { status, staffName, invoiceNumber } = req.body;
     const orders = getOrders();
     const orderIndex = orders.findIndex(o => o.order_number === req.params.orderNumber);
-    
-    if (orderIndex === -1) {
-        return res.status(404).json({ error: 'Order not found' });
-    }
-    
+    if (orderIndex === -1) return res.status(404).json({ error: 'Order not found' });
+
     const order = orders[orderIndex];
     order.status = status;
-    
-    if (invoiceNumber) {
-        order.invoice_number = invoiceNumber;
-    }
-    
-    // Add to status history
+    if (invoiceNumber) order.invoice_number = invoiceNumber;
+
     order.status_history.push({
-        status: status,
+        status,
         timestamp: new Date().toISOString(),
         staff: staffName
     });
-    
+
     orders[orderIndex] = order;
     saveOrders(orders);
-    
     logAudit('STATUS_UPDATE', req.params.orderNumber, staffName, `Status: ${status}`);
-    
     res.json({ success: true });
 });
 
@@ -138,24 +156,15 @@ app.put('/api/orders/:orderNumber/approve', (req, res) => {
     const { staffName } = req.body;
     const orders = getOrders();
     const orderIndex = orders.findIndex(o => o.order_number === req.params.orderNumber);
-    
-    if (orderIndex === -1) {
-        return res.status(404).json({ error: 'Order not found' });
-    }
-    
+    if (orderIndex === -1) return res.status(404).json({ error: 'Order not found' });
+
     const order = orders[orderIndex];
-    
-    // Check if staff already approved
     if (order.approvals.find(a => a.staff === staffName)) {
         return res.status(400).json({ error: 'Staff member already approved this order' });
     }
-    
-    order.approvals.push({
-        staff: staffName,
-        timestamp: new Date().toISOString()
-    });
-    
-    // Auto-update status if 3 approvals reached
+
+    order.approvals.push({ staff: staffName, timestamp: new Date().toISOString() });
+
     if (order.approvals.length >= 3 && order.status === 'received') {
         order.status = 'approved';
         order.status_history.push({
@@ -164,12 +173,10 @@ app.put('/api/orders/:orderNumber/approve', (req, res) => {
             staff: 'SYSTEM'
         });
     }
-    
+
     orders[orderIndex] = order;
     saveOrders(orders);
-    
     logAudit('APPROVAL_ADDED', req.params.orderNumber, staffName, `Approval ${order.approvals.length}/3`);
-    
     res.json({ success: true, approvals: order.approvals.length });
 });
 
@@ -177,19 +184,19 @@ app.put('/api/orders/:orderNumber/approve', (req, res) => {
 app.get('/api/search', (req, res) => {
     const { q, status } = req.query;
     let orders = getOrders();
-    
+
     if (q) {
-        orders = orders.filter(order => 
+        orders = orders.filter(order =>
             order.customer_name.toLowerCase().includes(q.toLowerCase()) ||
             order.order_number.toLowerCase().includes(q.toLowerCase()) ||
             order.customer_phone.includes(q)
         );
     }
-    
+
     if (status && status !== 'all') {
         orders = orders.filter(order => order.status === status);
     }
-    
+
     res.json(orders);
 });
 
@@ -208,6 +215,7 @@ app.get('/api/export/audit', (req, res) => {
 // Dashboard stats
 app.get('/api/stats', (req, res) => {
     const orders = getOrders();
+    const today = new Date().toISOString().slice(0, 10);
     const stats = {
         total: orders.length,
         received: orders.filter(o => o.status === 'received').length,
@@ -215,21 +223,14 @@ app.get('/api/stats', (req, res) => {
         packed: orders.filter(o => o.status === 'packed').length,
         ready: orders.filter(o => o.status === 'ready').length,
         completed: orders.filter(o => o.status === 'completed').length,
-        today: orders.filter(o => {
-            const today = new Date().toISOString().slice(0,10);
-            return o.created_at.slice(0,10) === today;
-        }).length
+        today: orders.filter(o => o.created_at.slice(0, 10) === today).length
     };
     res.json(stats);
 });
 
-// Initialize files and start server
+// Initialize and start
 initializeFiles();
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Wick Ram Hardware Pickup System running on http://localhost:${PORT}`);
-    console.log(`📁 Data files: ${ORDERS_FILE}, ${AUDIT_LOG}`);
 });
-
-module.exports = app;

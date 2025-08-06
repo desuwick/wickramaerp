@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Track Your Order - Wickrama Hardware</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .label {
+      font-weight: bold;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Track Your Order</h2>
+    <input type="text" id="search" placeholder="Enter Order Number or Phone Number">
+    <button onclick="lookupOrder()">Search</button>
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    async function lookupOrder() {
+      const query = document.getElementById('search').value.trim();
+      const resultBox = document.getElementById('result');
+      resultBox.style.display = 'none';
+
+      if (!query) return alert("Please enter a phone or order number.");
+
+      const res = await fetch(`/api/customer-lookup?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      if (!data || !data.found) {
+        resultBox.innerHTML = "❌ Order not found.";
+      } else {
+        const order = data.order;
+        resultBox.innerHTML = `
+          <div><span class="label">Order Number:</span> ${order.order_number}</div>
+          <div><span class="label">Status:</span> ${order.status.toUpperCase()}</div>
+          <div><span class="label">Invoice:</span> ${order.invoice_number || 'Not added yet'}</div>
+          <div><span class="label">Payment:</span> ${order.payment_method}</div>
+          <div><span class="label">Created On:</span> ${new Date(order.created_at).toLocaleDateString()}</div>
+        `;
+      }
+
+      resultBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
