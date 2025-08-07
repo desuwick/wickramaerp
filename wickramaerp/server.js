@@ -24,12 +24,18 @@ function initializeFiles() {
 // Generate unique order number (format: WRH-YYYYMMDD-XXX)
 function generateOrderNumber() {
     const today = new Date();
-    const dateStr = today.toISOString().slice(0,10).replace(/-/g, '');
+    const day = today.getDate();           // e.g., 7
+    const month = today.getMonth() + 1;    // e.g., 8 (August)
+    const dateCode = `${day}${month.toString().padStart(2, '0')}`;  // "708"
+
     const orders = getOrders();
-    const todayOrders = orders.filter(order => order.order_number.includes(dateStr));
-    const sequence = String(todayOrders.length + 1).padStart(3, '0');
-    return `WRH-${dateStr}-${sequence}`;
+    const todayCode = `WHS-${dateCode}`;
+    const todayOrders = orders.filter(order => order.order_number.startsWith(todayCode));
+    const sequence = String(todayOrders.length + 1).padStart(2, '0');
+
+    return `WHS-${dateCode}-${sequence}`;
 }
+
 
 // Load orders from file
 function getOrders() {

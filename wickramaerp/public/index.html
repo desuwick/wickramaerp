@@ -249,61 +249,42 @@
             margin-bottom: 5px;
         }
         
-        .print-label {
-            margin-top: 15px;
-            padding: 20px;
-            border: 2px dashed #3498db;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .print-label.show {
-            display: block;
-        }
-        
-        .label-content {
-            text-align: center;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-        
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-     @media print {
+ .print-label {
+  display: none;
+  width: 240px; /* 48mm = ~1.89in = 240px @ 203dpi */
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #000;
+  background: white;
+  line-height: 1.4;
+}
+
+.print-label.show {
+  display: block;
+}
+
+.label-content {
+  text-align: left;
+}
+
+@media print {
   body * {
-    display: none !important;
+    visibility: hidden;
+  }
+  .print-label,
+  .print-label * {
+    visibility: visible;
   }
   .print-label {
-    display: block !important;
-    width: 48mm;
-    padding: 0;
-    margin: 0;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    line-height: 1.4;
-    color: black;
-  }
-  .print-label * {
-    display: block;
-    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    padding: 10px;
   }
 }
+
 
         
         @media (max-width: 768px) {
@@ -371,10 +352,27 @@
                     <input type="tel" id="customer-phone" required>
                 </div>
                 
-                <div class="form-group">
-                    <label for="items">Items List *</label>
-                    <textarea id="items" rows="5" placeholder="Enter items list (one per line or comma-separated)" required></textarea>
-                </div>
+              <div class="form-group">
+    <label>Items *</label>
+    <table id="items-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="text-align: left;">Item Name</th>
+                <th style="text-align: left;">Quantity</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" name="item-name" placeholder="e.g., 1-inch PVC Pipe" required></td>
+                <td><input type="number" name="item-qty" min="1" placeholder="Qty" required></td>
+                <td><button type="button" onclick="removeItemRow(this)">❌</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <button type="button" class="btn" style="margin-top: 10px;" onclick="addItemRow()">➕ Add Item</button>
+</div>
+
                 
                 <div class="form-group">
                     <label for="payment-method">Payment Method *</label>
@@ -435,16 +433,18 @@
     </div>
 
     <!-- Print Label Template -->
-   <div class="print-label" id="print-label">
+<div class="print-label" id="print-label">
   <div class="label-content">
-    <div style="text-align:center; font-weight:bold; font-size:14px;">WICKRAMA HARDWARE</div>
-    <div style="border-top:1px dashed black; margin:6px 0;"></div>
-    <div>Order: <span id="label-order-number"></span></div>
-    <div>Customer: <span id="label-customer-name"></span></div>
-    <div>Invoice: <span id="label-invoice-number"></span></div>
-    <div>Payment: <span id="label-payment-method"></span></div>
-    <div style="border-top:1px dashed black; margin:6px 0;"></div>
-    <div>Generated: <span id="label-timestamp"></span></div>
+    <div style="text-align:center; font-weight:bold; font-size:16px;">WICKRAMA HARDWARE</div>
+    <div style="border-top:1px dashed #000; margin:6px 0;"></div>
+    
+    <div><strong>Order:</strong> <span id="label-order-number"></span></div>
+    <div><strong>Invoice:</strong> <span id="label-invoice-number"></span></div>
+    <div><strong>Payment:</strong> <span id="label-payment-method"></span></div>
+    <div><strong>Customer:</strong> <span id="label-customer-name"></span></div>
+    
+    <div style="margin-top:6px; border-top:1px dashed #000;"></div>
+    <div style="font-size:10px; text-align:center;"><span id="label-timestamp"></span></div>
   </div>
 </div>
 
@@ -542,39 +542,66 @@
             container.innerHTML = orders.map(order => createOrderCard(order)).join('');
         }
 
+        // Add new item row
+function addItemRow() {
+    const table = document.querySelector('#items-table tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><input type="text" name="item-name" placeholder="Item name" required></td>
+        <td><input type="number" name="item-qty" min="1" placeholder="Qty" required></td>
+        <td><button type="button" onclick="removeItemRow(this)">❌</button></td>
+    `;
+    table.appendChild(row);
+}
+
+// Remove item row
+function removeItemRow(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+}
+
+
         // Create order form submission
-        document.getElementById('order-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                customerName: document.getElementById('customer-name').value,
-                customerPhone: document.getElementById('customer-phone').value,
-                items: document.getElementById('items').value,
-                paymentMethod: document.getElementById('payment-method').value,
-                staffName: document.getElementById('staff-name').value
-            };
-            
-            try {
-                const response = await fetch('/api/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('order-alert', `Order created successfully! Order Number: ${result.order_number}`, 'success');
-                    document.getElementById('order-form').reset();
-                } else {
-                    showAlert('order-alert', 'Error creating order', 'error');
-                }
-            } catch (error) {
-                showAlert('order-alert', 'Network error occurred', 'error');
-            }
-        });
+document.getElementById('order-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const itemRows = document.querySelectorAll('#items-table tbody tr');
+  const items = Array.from(itemRows).map(row => {
+    const name = row.querySelector('[name="item-name"]').value.trim();
+    const qty = row.querySelector('[name="item-qty"]').value.trim();
+    return `${qty}x ${name}`;
+  }).join(', ');
+
+  const formData = {
+    customerName: document.getElementById('customer-name').value,
+    customerPhone: document.getElementById('customer-phone').value,
+    items,
+    paymentMethod: document.getElementById('payment-method').value,
+    staffName: document.getElementById('staff-name').value
+  };
+
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      showAlert('order-alert', `Order created successfully! Order Number: ${result.order_number}`, 'success');
+      document.getElementById('order-form').reset();
+    } else {
+      showAlert('order-alert', 'Error creating order', 'error');
+    }
+  } catch (error) {
+    showAlert('order-alert', 'Network error occurred', 'error');
+  }
+});
+
 
         // Load orders
         async function loadOrders() {
@@ -611,120 +638,91 @@
         }
 
         // Create order card HTML
-        function createOrderCard(order, showActions = false) {
-            const statusClass = `status-${order.status.replace(' ', '-')}`;
-            const canApprove = order.status === 'received' && order.approvals.length < 3;
-            const canPack = order.status === 'approved';
-            const canMarkReady = order.status === 'packed';
-            const canComplete = order.status === 'ready';
-            
-            return `
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-number">${order.order_number}</div>
-                        <div class="status-badge ${statusClass}">${order.status.toUpperCase()}</div>
-                    </div>
-                    
-                    <div class="order-details">
-                        <div>
-                            <strong>Customer:</strong> ${order.customer_name}<br>
-                            <strong>Phone:</strong> ${order.customer_phone}
-                        </div>
-                        <div>
-                            <strong>Payment:</strong> ${order.payment_method}<br>
-                            <strong>Invoice:</strong> ${order.invoice_number || 'Not set'}
-                        </div>
-                        <div>
-                            <strong>Created:</strong> ${new Date(order.created_at).toLocaleDateString()}<br>
-                            <strong>By:</strong> ${order.created_by}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <strong>Items:</strong> ${order.items}
-                    </div>
-                    
-                    ${order.approvals.length > 0 ? `
-                        <div class="approvals">
-                            <strong>Approvals (${order.approvals.length}/3):</strong>
-                            ${order.approvals.map(approval => `
-                                <div class="approval">
-                                    <span>${approval.staff}</span>
-                                    <span>${new Date(approval.timestamp).toLocaleString()}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-                    
-                    ${showActions ? `
-                        <div style="margin-top: 15px;">
-                            ${canApprove ? `
-                                <button class="btn btn-warning" onclick="approveOrder('${order.order_number}')">
-                                    ✅ Approve (${order.approvals.length}/3)
-                                </button>
-                            ` : ''}
-                            
-                            ${order.status === 'received' || order.status === 'approved' ? `
-                                <button class="btn" onclick="updateInvoiceNumber('${order.order_number}')">
-                                    📄 Set Invoice Number
-                                </button>
-                            ` : ''}
-                            
-                            ${canPack ? `
-                                <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'packed')">
-                                    📦 Mark as Packed
-                                </button>
-                            ` : ''}
-                            
-                            ${canMarkReady ? `
-                                <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'ready')">
-                                    ✅ Mark as Ready
-                                </button>
-                            ` : ''}
-                            
-                            ${canComplete ? `
-                                <button class="btn" onclick="updateOrderStatus('${order.order_number}', 'completed')">
-                                    🏁 Mark as Completed
-                                </button>
-                            ` : ''}
-                            
-                            ${order.status === 'packed' || order.status === 'ready' ? `
-                                <button class="btn" onclick="printLabel('${order.order_number}')">
-                                    🖨️ Print Label
-                                </button>
-                            ` : ''}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        }
+ function createOrderCard(order, showActions = false) {
+  const statusClass = `status-${order.status.replace(' ', '-')}`;
+  const canApprove = order.status === 'received' && order.approvals.length < 3;
+  const canPack = order.status === 'approved';
+  const canMarkReady = order.status === 'packed';
+  const canComplete = order.status === 'ready';
 
-        // Approve order
-        async function approveOrder(orderNumber) {
-            const staffName = prompt('Enter your name for approval:');
-            if (!staffName) return;
-            
-            try {
-                const response = await fetch(`/api/orders/${orderNumber}/approve`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ staffName })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(`Approval added! (${result.approvals}/3 approvals)`);
-                    loadOrders();
-                } else {
-                    alert(result.error || 'Error adding approval');
-                }
-            } catch (error) {
-                alert('Network error occurred');
-            }
-        }
+  const approvalForm = canApprove ? `
+    <form onsubmit="submitApproval(event, '${order.order_number}')">
+      <input type="text" placeholder="Your name" name="staffName" required style="padding:8px; margin-bottom:5px; width:70%">
+      <button type="submit" class="btn btn-warning">✅ Approve (${order.approvals.length}/3)</button>
+    </form>
+  ` : '';
+
+  const approvalsBlock = order.approvals.length > 0 ? `
+    <div class="approvals">
+      <strong>Approvals (${order.approvals.length}/3):</strong>
+      ${order.approvals.map(approval => `
+        <div class="approval">
+          <span>${approval.staff}</span>
+          <span>${new Date(approval.timestamp).toLocaleString()}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const progressBar = `
+    <div style="margin:10px 0;">
+      <strong>Approval Progress:</strong>
+      <div style="background:#ecf0f1; height:10px; border-radius:5px; margin-top:5px;">
+        <div style="height:10px; border-radius:5px; background:#27ae60; width:${(order.approvals.length / 3) * 100}%"></div>
+      </div>
+    </div>
+  `;
+
+  const actionButtons = showActions ? `
+    <div style="margin-top: 15px;">
+      ${canApprove ? approvalForm : ''}
+      ${(order.status === 'received' || order.status === 'approved') ? `
+        <button class="btn" onclick="updateInvoiceNumber('${order.order_number}')">📄 Set Invoice Number</button>
+      ` : ''}
+      ${canPack ? `
+        <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'packed')">📦 Mark as Packed</button>
+      ` : ''}
+      ${canMarkReady ? `
+        <button class="btn btn-success" onclick="updateOrderStatus('${order.order_number}', 'ready')">✅ Mark as Ready</button>
+      ` : ''}
+      ${canComplete ? `
+        <button class="btn" onclick="updateOrderStatus('${order.order_number}', 'completed')">🏁 Mark as Completed</button>
+      ` : ''}
+      ${(order.status === 'packed' || order.status === 'ready') ? `
+        <button class="btn" onclick="printLabel('${order.order_number}')">🖨️ Print Label</button>
+      ` : ''}
+    </div>
+  ` : '';
+
+  return `
+    <div class="order-card">
+      <div class="order-header">
+        <div class="order-number">${order.order_number}</div>
+        <div class="status-badge ${statusClass}">${order.status.toUpperCase()}</div>
+      </div>
+
+      <div class="order-details">
+        <div>
+          <strong>Customer:</strong> ${order.customer_name}<br>
+          <strong>Phone:</strong> ${order.customer_phone}
+        </div>
+        <div>
+          <strong>Payment:</strong> ${order.payment_method}<br>
+          <strong>Invoice:</strong> ${order.invoice_number || 'Not set'}
+        </div>
+        <div>
+          <strong>Created:</strong> ${new Date(order.created_at).toLocaleDateString()}<br>
+          <strong>By:</strong> ${order.created_by}
+        </div>
+      </div>
+
+      <div><strong>Items:</strong> ${order.items}</div>
+      ${progressBar}
+      ${approvalsBlock}
+      ${actionButtons}
+    </div>
+  `;
+}
 
         // Update order status
         async function updateOrderStatus(orderNumber, status) {
@@ -861,6 +859,31 @@
                 loadDashboard();
             }
         }, 30000);
+
+         async function submitApproval(event, orderNumber) {
+  event.preventDefault();
+  const form = event.target;
+  const staffName = form.staffName.value;
+
+  try {
+    const response = await fetch(`/api/orders/${orderNumber}/approve`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ staffName })
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      alert(`Approved! (${result.approvals}/3)`);
+      loadOrders();
+    } else {
+      alert(result.error || 'Error approving order');
+    }
+  } catch (err) {
+    alert('Network error occurred');
+  }
+}
+
     </script>
 </body>
 </html>
