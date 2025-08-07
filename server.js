@@ -4,6 +4,10 @@ const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 const app = express();
+// Serve track.html at /track
+app.get('/track', (req, res) => {
+    res.sendFile(path.join(__dirname, 'track.html'));
+});
 
 // Configure multer for logo upload
 const storage = multer.diskStorage({
