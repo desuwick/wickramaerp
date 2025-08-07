@@ -285,19 +285,26 @@
             border: 1px solid #f5c6cb;
         }
         
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .print-label, .print-label * {
-                visibility: visible;
-            }
-            .print-label {
-                position: absolute;
-                left: 0;
-                top: 0;
-            }
-        }
+     @media print {
+  body * {
+    display: none !important;
+  }
+  .print-label {
+    display: block !important;
+    width: 48mm;
+    padding: 0;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: black;
+  }
+  .print-label * {
+    display: block;
+    width: 100%;
+  }
+}
+
         
         @media (max-width: 768px) {
             .container {
@@ -428,18 +435,19 @@
     </div>
 
     <!-- Print Label Template -->
-    <div class="print-label" id="print-label">
-        <div class="label-content">
-            <h2>WICKRAMA HARDWARE STORES</h2>
-            <hr>
-            <h3 id="label-order-number"></h3>
-            <p><strong>Customer:</strong> <span id="label-customer-name"></span></p>
-            <p><strong>Invoice:</strong> <span id="label-invoice-number"></span></p>
-            <p><strong>Payment:</strong> <span id="label-payment-method"></span></p>
-            <hr>
-            <p><small>Generated: <span id="label-timestamp"></span></small></p>
-        </div>
-    </div>
+   <div class="print-label" id="print-label">
+  <div class="label-content">
+    <div style="text-align:center; font-weight:bold; font-size:14px;">WICKRAMA HARDWARE</div>
+    <div style="border-top:1px dashed black; margin:6px 0;"></div>
+    <div>Order: <span id="label-order-number"></span></div>
+    <div>Customer: <span id="label-customer-name"></span></div>
+    <div>Invoice: <span id="label-invoice-number"></span></div>
+    <div>Payment: <span id="label-payment-method"></span></div>
+    <div style="border-top:1px dashed black; margin:6px 0;"></div>
+    <div>Generated: <span id="label-timestamp"></span></div>
+  </div>
+</div>
+
 
     <script>
         let currentOrders = [];
