@@ -41,7 +41,8 @@ app.use(express.static('public'));
 const AUTH_USERS = {
     'admin': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // hash of 'admin123'
     'manager': '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', // hash of 'manager123'
-    'staff': '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5edd' // hash of 'staff123'
+    'staff': '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5edd', // hash of 'staff123'
+    'supervisor1': '4e4c56e4a15f89f05c2f4c72613da2a18c9665d4f0d6acce16415eb06f9be776' // hash of 'super123'
 };
 
 // Hash function
@@ -55,11 +56,14 @@ app.post('/api/login', (req, res) => {
     const hashedPassword = hashPassword(password);
     
     if (AUTH_USERS[username] === hashedPassword) {
+        const isAdmin = ['admin', 'manager', 'supervisor1'].includes(username);
+        
         res.json({ 
             success: true, 
             username: username,
-            isAdmin: username === 'admin' || username === 'manager'
+            isAdmin: isAdmin
         });
+        
         logAudit('USER_LOGIN', 'N/A', username, `Login successful`);
     } else {
         res.status(401).json({ success: false, error: 'Invalid credentials' });
