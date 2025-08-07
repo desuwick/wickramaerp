@@ -608,6 +608,11 @@ setInterval(() => {
     }
 }, 60000); // Check every minute
 
+   // Serve track.html when user visits /track
+app.get('/track', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'track.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Wickrama Hardware Pickup System running on http://localhost:${PORT}`);
