@@ -1170,31 +1170,34 @@ function buildWhatsAppLink(phone, orderNo) {
             document.getElementById('login-alert').innerHTML = '';
         }
 
-        // Manager login
-        async function login(event) {
-            event.preventDefault();
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-            
-        // Simple client-side authentication (demo only)
-const validCredentials = {
-    'admin':   'admin123',
-    'desindu': 'manager123',
-    'ranga':   'super123',
-    'sarath':  'staff123'      // now recognised by the browser
-};
+// Manager login (SERVER AUTHENTICATION)
+async function login(event) {
+    event.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
 
-            
-            if (validCredentials[username] === password) {
-                setManagerMode(true);
-                localStorage.setItem('managerLoggedIn', 'true');
-                localStorage.setItem('managerName', username);
-                closeLoginModal();
-                showAlert('login-alert', '', 'success'); // Clear any errors
-            } else {
-                showAlert('login-alert', 'Invalid credentials', 'error');
-            }
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            setManagerMode(true);
+            localStorage.setItem('managerLoggedIn', 'true');
+            localStorage.setItem('managerName', username);
+            closeLoginModal();
+            showAlert('login-alert', '', 'success');
+        } else {
+            showAlert('login-alert', result.error || 'Invalid credentials', 'error');
         }
+    } catch (err) {
+        showAlert('login-alert', 'Network error', 'error');
+    }
+}
 
         // Logout
         function logout() {
