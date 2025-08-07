@@ -4,10 +4,6 @@ const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 const app = express();
-// Serve track.html at /track
-app.get('/track', (req, res) => {
-    res.sendFile(path.join(__dirname, 'track.html'));
-});
 
 // Configure multer for logo upload
 const storage = multer.diskStorage({
@@ -644,6 +640,12 @@ setInterval(() => {
         autoCleanupDeletedOrders();
     }
 }, 60000); // Check every minute
+
+// Serve track.html when user visits /track
+app.get('/track', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'track.html'));
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
