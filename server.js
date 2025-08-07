@@ -41,8 +41,7 @@ app.use(express.static('public'));
 const AUTH_USERS = {
     'admin': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // hash of 'admin123'
     'manager': '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', // hash of 'manager123'
-    'staff': '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5edd', // hash of 'staff123'
-    'supervisor1': '4e4c56e4a15f89f05c2f4c72613da2a18c9665d4f0d6acce16415eb06f9be776' // hash of 'super123'
+    'staff': '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5edd' // hash of 'staff123'
 };
 
 // Hash function
@@ -56,14 +55,11 @@ app.post('/api/login', (req, res) => {
     const hashedPassword = hashPassword(password);
     
     if (AUTH_USERS[username] === hashedPassword) {
-        const isAdmin = ['admin', 'manager', 'supervisor1'].includes(username);
-        
         res.json({ 
             success: true, 
             username: username,
-            isAdmin: isAdmin
+            isAdmin: username === 'admin' || username === 'manager'
         });
-        
         logAudit('USER_LOGIN', 'N/A', username, `Login successful`);
     } else {
         res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -300,6 +296,39 @@ app.get('/api/customer-lookup', (req, res) => {
     } catch (error) {
         console.error('Customer lookup error:', error);
         res.status(500).json({ found: false, message: 'System error. Please try again later.' });
+    }
+});
+
+// Get unique customers for auto-complete
+app.get('/api/customers', (req, res) => {
+    try {
+        const orders = getOrders();
+        const customers = {};
+        
+        orders.forEach(order => {
+            if (!customers[order.customer_phone]) {
+                customers[order.customer_phone] = {
+                    name: order.customer_name,
+                    phone: order.customer_phone,
+                    lastOrder: order.created_at
+                };
+            } else {
+                // Keep most recent order date
+                if (order.created_at > customers[order.customer_phone].lastOrder) {
+                    customers[order.customer_phone].lastOrder = order.created_at;
+                }
+            }
+        });
+        
+        // Convert to array and sort by most recent
+        const customerList = Object.values(customers)
+            .sort((a, b) => new Date(b.lastOrder) - new Date(a.lastOrder))
+            .slice(0, 50); // Limit to 50 most recent customers
+        
+        res.json(customerList);
+    } catch (error) {
+        console.error('Error getting customers:', error);
+        res.status(500).json({ error: 'Error loading customers' });
     }
 });
 
@@ -611,11 +640,6 @@ setInterval(() => {
         autoCleanupDeletedOrders();
     }
 }, 60000); // Check every minute
-
-   // Serve track.html when user visits /track
-app.get('/track', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'track.html'));
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

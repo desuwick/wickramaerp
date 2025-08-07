@@ -424,8 +424,130 @@
             line-height: 1.6;
         }
         
-        /* Responsive Design */
+        /* Mobile Swipe and Pull-to-Refresh */
+        .pull-to-refresh {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .pull-to-refresh.show {
+            top: 20px;
+        }
+        
+        /* Share Button */
+        .share-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+        
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .whatsapp-btn:hover {
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+        }
+        
+        /* Store Info Section */
+        .store-info {
+            margin-top: 30px;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .store-hours {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .hours-status {
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        
+        .hours-status.open {
+            background: rgba(17, 153, 142, 0.2);
+            color: #0f5132;
+        }
+        
+        .hours-status.closed {
+            background: rgba(255, 107, 107, 0.2);
+            color: #721c24;
+        }
+        
+        .estimated-time {
+            background: linear-gradient(135deg, rgba(255, 165, 2, 0.1), rgba(255, 99, 72, 0.1));
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #ffa502;
+            text-align: center;
+        }
+        
+        .estimated-time.ready {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.1), rgba(56, 239, 125, 0.1));
+            border-left-color: #11998e;
+        }
+        
+        /* Touch-friendly mobile enhancements */
         @media (max-width: 768px) {
+            .search-btn,
+            .share-btn,
+            .whatsapp-btn {
+                min-height: 48px;
+                padding: 15px 25px;
+            }
+            
+            .search-input {
+                min-height: 48px;
+                padding: 15px 20px;
+            }
+            
+            /* Swipe gesture indicators */
+            .swipe-hint {
+                text-align: center;
+                color: #999;
+                font-size: 0.9em;
+                margin-top: 20px;
+                padding: 15px;
+            }
+            
+            /* Responsive Design */
             .container {
                 padding: 25px;
                 margin: 10px;
@@ -459,7 +581,86 @@
             .order-number {
                 font-size: 1.6em;
             }
+            
+            .store-hours {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
         }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .company-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .timeline-item {
+                padding-left: 50px;
+            }
+            
+            .timeline-dot {
+                left: 15px;
+                width: 16px;
+                height: 16px;
+            }
+            
+            .timeline-line,
+            .timeline-progress {
+                left: 23px;
+            }
+            
+            .share-section {
+                flex-direction: column;
+            }
+            
+            .share-btn,
+            .whatsapp-btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: auto;
+            }
+            
+            .search-btn {
+                padding: 15px 25px;
+            }
+            
+            .order-details {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .timeline-item {
+                padding-left: 60px;
+            }
+            
+            .order-number {
+                font-size: 1.6em;
+            }
         
         @media (max-width: 480px) {
             .container {
@@ -501,6 +702,22 @@
             <p>Enter your order number or phone number to track your pickup order</p>
         </div>
         
+        <!-- Store Information -->
+        <div class="store-info">
+            <div class="store-hours">
+                <div>
+                    <strong>🕒 Store Hours:</strong> Mon-Sat 8:00 AM - 8:00 PM
+                </div>
+                <div id="store-status" class="hours-status">
+                    <!-- Status will be updated by JavaScript -->
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div><strong>📍 Location:</strong> Main Street, Colombo</div>
+                <div><strong>📞 Phone:</strong> <a href="tel:+94112345678" style="color: #667eea; text-decoration: none;">+94 11 234 5678</a></div>
+            </div>
+        </div>
+        
         <!-- Search Section -->
         <div class="search-section">
             <div class="search-title">🔍 Order Lookup</div>
@@ -528,11 +745,38 @@
         <div id="result" class="result">
             <!-- Results will be dynamically inserted here -->
         </div>
+        
+        <!-- Mobile Pull-to-Refresh Indicator -->
+        <div id="pull-refresh" class="pull-to-refresh">
+            ⬇️ Pull down to refresh
+        </div>
+        
+        <!-- Mobile Swipe Hint -->
+        <div class="swipe-hint">
+            <small>💡 Tip: Bookmark this page for quick access to track your orders</small>
+        </div>
     </div>
 
     <script>
-        // Load company logo on page load
+        let currentOrder = null;
+        
+        // Load company logo and setup on page load
         window.onload = async () => {
+            await loadLogo();
+            updateStoreStatus();
+            setupMobileEnhancements();
+            
+            // Auto-search if order number in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order');
+            if (orderNumber) {
+                document.getElementById('search-input').value = orderNumber;
+                lookupOrder();
+            }
+        };
+
+        // Load company logo
+        async function loadLogo() {
             try {
                 const response = await fetch('/api/logo');
                 const result = await response.json();
@@ -545,7 +789,202 @@
             } catch (error) {
                 console.error('Error loading logo:', error);
             }
-        };
+        }
+
+        // Update store hours status
+        function updateStoreStatus() {
+            const now = new Date();
+            const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            const hour = now.getHours();
+            
+            const statusElement = document.getElementById('store-status');
+            
+            // Store hours: Mon-Sat 8:00 AM - 8:00 PM (closed Sunday)
+            if (day === 0) { // Sunday
+                statusElement.textContent = '🔴 Closed Today';
+                statusElement.className = 'hours-status closed';
+            } else if (hour >= 8 && hour < 20) { // 8 AM to 8 PM
+                const closingTime = 20 - hour;
+                statusElement.textContent = `🟢 Open (closes ${closingTime}h)`;
+                statusElement.className = 'hours-status open';
+            } else {
+                const openingIn = hour < 8 ? 8 - hour : 24 - hour + 8;
+                statusElement.textContent = `🔴 Closed (opens ${openingIn}h)`;
+                statusElement.className = 'hours-status closed';
+            }
+        }
+
+        // Calculate estimated pickup time
+        function getEstimatedPickupTime(order) {
+            if (!order) return null;
+            
+            const created = new Date(order.created_at);
+            const now = new Date();
+            
+            // Estimate based on current status
+            const estimates = {
+                'received': { min: 30, max: 60, label: 'Being processed' },
+                'approved': { min: 15, max: 30, label: 'Being packed' },
+                'packed': { min: 5, max: 15, label: 'Final preparations' },
+                'ready': { min: 0, max: 0, label: 'Ready now!' },
+                'completed': { min: 0, max: 0, label: 'Completed' }
+            };
+            
+            const estimate = estimates[order.status];
+            if (!estimate) return null;
+            
+            if (order.status === 'ready') {
+                return {
+                    text: '🎉 Your order is ready for pickup!',
+                    class: 'ready',
+                    urgent: true
+                };
+            }
+            
+            if (order.status === 'completed') {
+                return {
+                    text: '✅ Order completed',
+                    class: 'ready',
+                    urgent: false
+                };
+            }
+            
+            const avgTime = Math.round((estimate.min + estimate.max) / 2);
+            const estimatedReady = new Date(now.getTime() + avgTime * 60000);
+            
+            return {
+                text: `⏱️ Estimated ready time: ${estimatedReady.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit', 
+                    hour12: true 
+                })}`,
+                subtext: `Currently ${estimate.label.toLowerCase()}`,
+                class: 'processing',
+                urgent: false
+            };
+        }
+
+        // Share functionality
+        async function shareOrder() {
+            if (!currentOrder) return;
+            
+            const shareData = {
+                title: `Order ${currentOrder.order_number} - Wickrama Hardware`,
+                text: `Track my order ${currentOrder.order_number} status: ${currentOrder.status}`,
+                url: `${window.location.origin}/track.html?order=${currentOrder.order_number}`
+            };
+            
+            try {
+                if (navigator.share) {
+                    // Use native sharing API on mobile
+                    await navigator.share(shareData);
+                } else {
+                    // Fallback: copy link to clipboard
+                    await navigator.clipboard.writeText(shareData.url);
+                    showMobileToast('Link copied to clipboard!');
+                }
+            } catch (error) {
+                // Fallback: show share URL
+                prompt('Share this tracking link:', shareData.url);
+            }
+        }
+
+        // WhatsApp contact
+        function contactWhatsApp() {
+            const message = currentOrder 
+                ? `Hi! I'm checking about my order ${currentOrder.order_number}. Current status: ${currentOrder.status}`
+                : 'Hi! I have a question about my order.';
+            
+            const whatsappUrl = `https://wa.me/+94112345678?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Mobile toast notification
+        function showMobileToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 10000;
+                animation: slideUp 0.3s ease-out;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideDown 0.3s ease-out forwards';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 2000);
+        }
+
+        // Setup mobile enhancements
+        function setupMobileEnhancements() {
+            let startY = 0;
+            let currentY = 0;
+            let isPulling = false;
+            
+            // Pull-to-refresh functionality
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].pageY;
+                    isPulling = true;
+                }
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!isPulling || window.scrollY > 0) return;
+                
+                currentY = e.touches[0].pageY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 50) {
+                    document.getElementById('pull-refresh').classList.add('show');
+                } else {
+                    document.getElementById('pull-refresh').classList.remove('show');
+                }
+            });
+            
+            document.addEventListener('touchend', (e) => {
+                if (!isPulling) return;
+                
+                const pullDistance = currentY - startY;
+                const refreshElement = document.getElementById('pull-refresh');
+                
+                if (pullDistance > 80) {
+                    refreshElement.textContent = '🔄 Refreshing...';
+                    setTimeout(() => {
+                        refreshOrder();
+                        refreshElement.textContent = '⬇️ Pull down to refresh';
+                        refreshElement.classList.remove('show');
+                    }, 1000);
+                } else {
+                    refreshElement.classList.remove('show');
+                }
+                
+                isPulling = false;
+                startY = 0;
+                currentY = 0;
+            });
+            
+            // Update store status every minute
+            setInterval(updateStoreStatus, 60000);
+        }
+
+        // Refresh current order
+        async function refreshOrder() {
+            if (currentOrder) {
+                const query = currentOrder.order_number;
+                await lookupOrderQuery(query);
+                showMobileToast('Order status refreshed');
+            }
+        }
 
         // Handle Enter key press in search input
         function handleKeyPress(event) {
@@ -557,6 +996,11 @@
         // Main order lookup function
         async function lookupOrder() {
             const query = document.getElementById('search-input').value.trim();
+            await lookupOrderQuery(query);
+        }
+
+        // Lookup order by query
+        async function lookupOrderQuery(query) {
             const resultDiv = document.getElementById('result');
             const loadingDiv = document.getElementById('loading');
             const searchBtn = document.getElementById('search-btn');
@@ -587,7 +1031,9 @@
                 
                 if (!data.found) {
                     showError(data.message || 'Order not found. Please check your order number or phone number.');
+                    currentOrder = null;
                 } else {
+                    currentOrder = data.order;
                     displayOrderDetails(data.order);
                 }
             } catch (error) {
@@ -596,6 +1042,7 @@
                 searchBtn.disabled = false;
                 searchBtn.textContent = '🔍 Track Order';
                 showError('Network error. Please check your internet connection and try again.');
+                currentOrder = null;
             }
         }
 
@@ -611,7 +1058,7 @@
             resultDiv.style.display = 'block';
         }
 
-        // Display order details with timeline
+        // Display order details with enhanced features
         function displayOrderDetails(order) {
             const resultDiv = document.getElementById('result');
             
@@ -626,6 +1073,9 @@
             
             const currentStatusIndex = statusSteps.findIndex(step => step.key === order.status);
             const progressPercentage = currentStatusIndex >= 0 ? ((currentStatusIndex + 1) / statusSteps.length) * 100 : 0;
+            
+            // Get estimated pickup time
+            const estimatedTime = getEstimatedPickupTime(order);
             
             // Generate timeline HTML
             const timelineHTML = statusSteps.map((step, index) => {
@@ -657,6 +1107,13 @@
                             day: 'numeric' 
                         })}</div>
                     </div>
+                    
+                    ${estimatedTime ? `
+                        <div class="estimated-time ${estimatedTime.class}">
+                            <div style="font-weight: 700; margin-bottom: 5px;">${estimatedTime.text}</div>
+                            ${estimatedTime.subtext ? `<div style="font-size: 0.9em; opacity: 0.8;">${estimatedTime.subtext}</div>` : ''}
+                        </div>
+                    ` : ''}
                     
                     <div class="status-section">
                         <div class="status-title">📋 Order Progress</div>
@@ -693,10 +1150,25 @@
                         </div>
                     </div>
                     
+                    <!-- Share and Contact Section -->
+                    <div class="share-section">
+                        <button class="share-btn" onclick="shareOrder()">
+                            🔗 Share Tracking Link
+                        </button>
+                        <button class="whatsapp-btn" onclick="contactWhatsApp()">
+                            💬 Contact Store via WhatsApp
+                        </button>
+                    </div>
+                    
                     ${order.status === 'ready' ? `
                         <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, rgba(17, 153, 142, 0.2), rgba(56, 239, 125, 0.2)); border-radius: 15px; text-align: center; border-left: 4px solid #11998e;">
                             <h3 style="color: #0f5132; margin-bottom: 10px;">🎉 Your Order is Ready!</h3>
                             <p style="color: #155724; font-weight: 600;">Please visit Wickrama Hardware Stores to pickup your order. Don't forget to mention your order number: <strong>${order.order_number}</strong></p>
+                            <div style="margin-top: 15px;">
+                                <button class="whatsapp-btn" onclick="contactWhatsApp()" style="margin: 0;">
+                                    📍 Get Directions & Contact Store
+                                </button>
+                            </div>
                         </div>
                     ` : ''}
                     
@@ -704,6 +1176,11 @@
                         <div style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)); border-radius: 15px; text-align: center; border-left: 4px solid #667eea;">
                             <h3 style="color: #2c3e50; margin-bottom: 10px;">✅ Order Completed</h3>
                             <p style="color: #2c3e50; font-weight: 600;">Thank you for choosing Wickrama Hardware Stores! We hope to serve you again soon.</p>
+                            <div class="share-section" style="margin-top: 15px;">
+                                <button class="share-btn" onclick="shareOrder()">
+                                    🔗 Share Your Experience
+                                </button>
+                            </div>
                         </div>
                     ` : ''}
                 </div>

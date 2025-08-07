@@ -107,6 +107,21 @@
             box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
         }
         
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
         .manager-login-btn:hover, .logout-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
@@ -692,7 +707,28 @@
         }
         
         /* Mobile Responsiveness */
+        /* Mobile-specific toast positioning */
         @media (max-width: 768px) {
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .toast {
+                min-width: auto;
+                max-width: none;
+                width: 100%;
+                transform: translateY(-100px);
+            }
+            
+            .toast.show {
+                transform: translateY(0);
+            }
+            
             .container {
                 padding: 10px;
             }
@@ -766,6 +802,16 @@
                 padding: 30px 20px;
                 margin: 20px;
             }
+            
+            .quick-filters {
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -784,6 +830,15 @@
             
             .tab-content {
                 padding: 20px 15px;
+            }
+            
+            .order-card {
+                padding: 15px;
+            }
+            
+            .quick-filters {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
             }
         }
         
@@ -806,19 +861,270 @@
             }
         }
         
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(102, 126, 234, 0.3);
-            border-radius: 50%;
-            border-top-color: #667eea;
-            animation: spin 1s ease-in-out infinite;
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toast {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 400px;
+            transform: translateX(450px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            opacity: 0;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            border-left: 4px solid #11998e;
+        }
+        
+        .toast.error {
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .toast.info {
+            border-left: 4px solid #667eea;
+        }
+        
+        .toast-icon {
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        
+        .toast.success .toast-icon {
+            color: #11998e;
+        }
+        
+        .toast.error .toast-icon {
+            color: #ff6b6b;
+        }
+        
+        .toast.info .toast-icon {
+            color: #667eea;
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+        
+        .toast-message {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .toast-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: #666;
+        }
+        
+        /* Auto-complete System */
+        .autocomplete-container {
+            position: relative;
+        }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .autocomplete-suggestions.show {
+            display: block;
+            animation: fadeInUp 0.2s ease;
+        }
+        
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        
+        .autocomplete-icon {
+            color: #667eea;
+            font-size: 0.9em;
+        }
+        
+        .autocomplete-text {
+            flex: 1;
+        }
+        
+        .autocomplete-count {
+            font-size: 0.8em;
+            color: #999;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        /* Quick Filter Buttons */
+        .quick-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .filter-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        /* Customer Lookup */
+        .customer-lookup {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .customer-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .customer-suggestions.show {
+            display: block;
+        }
+        
+        .customer-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            transition: background 0.2s ease;
+        }
+        
+        .customer-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .customer-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .customer-phone {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* Enhanced Focus States */
+        .form-group.focused label {
+            color: #667eea;
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input.focused,
+        .form-group select.focused,
+        .form-group textarea.focused {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -829,9 +1135,12 @@
             <div class="logo-section">
                 <img id="company-logo" class="company-logo" src="/uploads/logo.png" alt="Company Logo" style="display: none;">
                 <div class="company-info">
-                    <h1> Wickrama Hardware Stores</h1>
+                    <h1>🏪 Wickrama Hardware Stores</h1>
                     <p>Advanced Pickup Order Management System</p>
                 </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
             </div>
             
             <div class="header-actions">
@@ -875,6 +1184,15 @@
             <h2 style="margin-bottom: 25px; color: #2c3e50; font-weight: 700;">➕ Create New Order</h2>
             <div id="order-alert"></div>
             <form id="order-form">
+                <!-- Customer Lookup -->
+                <div class="form-group customer-lookup">
+                    <label for="customer-search">🔍 Quick Customer Lookup</label>
+                    <input type="text" id="customer-search" placeholder="Start typing customer name or phone..." onkeyup="searchCustomers(this.value)">
+                    <div id="customer-suggestions" class="customer-suggestions">
+                        <!-- Customer suggestions will appear here -->
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label for="customer-name">Customer Name *</label>
                     <input type="text" id="customer-name" placeholder="Enter customer's full name" required>
@@ -897,7 +1215,14 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td><input type="text" name="item-name" placeholder="e.g., 1-inch PVC Pipe" required></td>
+                                <td>
+                                    <div class="autocomplete-container">
+                                        <input type="text" name="item-name" placeholder="e.g., 1-inch PVC Pipe" required onkeyup="showItemSuggestions(this)">
+                                        <div class="autocomplete-suggestions">
+                                            <!-- Item suggestions will appear here -->
+                                        </div>
+                                    </div>
+                                </td>
                                 <td><input type="number" name="item-qty" min="1" placeholder="Qty" required></td>
                                 <td><button type="button" class="btn btn-danger" onclick="removeItemRow(this)" style="padding: 8px 12px; margin: 0;">❌</button></td>
                             </tr>
@@ -927,6 +1252,27 @@
         <!-- Manage Orders Tab -->
         <div id="orders" class="tab-content">
             <h2 style="margin-bottom: 25px; color: #2c3e50; font-weight: 700;">📋 Manage Orders</h2>
+            
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+                <button class="filter-btn active" onclick="setQuickFilter('all')" data-filter="all">
+                    📊 All Orders
+                    <span class="filter-count" id="filter-all-count">0</span>
+                </button>
+                <button class="filter-btn" onclick="setQuickFilter('today')" data-filter="today">
+                    📅 Today's Orders
+                    <span class="filter-count" id="filter-today-count">0</span>
+                </button>
+                <button class="filter-btn" onclick="setQuickFilter('ready')" data-filter="ready">
+                    🚚 Ready for Pickup
+                    <span class="filter-count" id="filter-ready-count">0</span>
+                </button>
+                <button class="filter-btn" onclick="setQuickFilter('urgent')" data-filter="urgent">
+                    ⚡ Needs Attention
+                    <span class="filter-count" id="filter-urgent-count">0</span>
+                </button>
+            </div>
+            
             <div class="search-bar">
                 <select id="status-filter" onchange="filterOrders()">
                     <option value="all">All Statuses</option>
@@ -996,6 +1342,17 @@
                 <button type="submit" class="btn btn-success">🚀 Login</button>
                 <button type="button" class="btn" onclick="closeLoginModal()">Cancel</button>
             </form>
+            
+            <div class="demo-credentials">
+                <strong>🎯 Demo Credentials:</strong><br>
+                <strong>Manager:</strong> manager / manager123<br>
+                <strong>Supervisor:</strong> supervisor / super123<br><br>
+                <small><strong>🆕 Latest Features:</strong><br>
+                • Beautiful modern dashboard design<br>
+                • Logo upload functionality<br>
+                • Enhanced mobile responsiveness<br>
+                • Professional thermal printer labels</small>
+            </div>
         </div>
     </div>
 
@@ -1055,6 +1412,292 @@
         let currentDeletedOrders = [];
         let recycleBinStats = {};
         let isManagerLoggedIn = false;
+        let currentQuickFilter = 'all';
+        
+        // Auto-complete data
+        let commonItems = [];
+        let customerHistory = [];
+
+        // Toast Notification System
+        function showToast(title, message, type = 'info', duration = 4000) {
+            const toastContainer = document.getElementById('toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.id = toastId;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="hideToast('${toastId}')">×</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Auto-hide
+            setTimeout(() => hideToast(toastId), duration);
+        }
+
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 400);
+            }
+        }
+
+        // Auto-complete for Items
+        function showItemSuggestions(input) {
+            const value = input.value.toLowerCase().trim();
+            const container = input.parentNode;
+            const suggestions = container.querySelector('.autocomplete-suggestions');
+            
+            if (value.length < 2) {
+                suggestions.classList.remove('show');
+                return;
+            }
+            
+            // Filter common items
+            const filtered = commonItems.filter(item => 
+                item.name.toLowerCase().includes(value)
+            ).slice(0, 5);
+            
+            if (filtered.length === 0) {
+                suggestions.classList.remove('show');
+                return;
+            }
+            
+            suggestions.innerHTML = filtered.map(item => `
+                <div class="autocomplete-item" onclick="selectItem('${item.name}', this)">
+                    <span class="autocomplete-icon">📦</span>
+                    <span class="autocomplete-text">${item.name}</span>
+                    <span class="autocomplete-count">${item.count}x</span>
+                </div>
+            `).join('');
+            
+            suggestions.classList.add('show');
+        }
+
+        function selectItem(itemName, element) {
+            const input = element.closest('.autocomplete-container').querySelector('input');
+            input.value = itemName;
+            element.closest('.autocomplete-suggestions').classList.remove('show');
+            
+            // Focus next field (quantity)
+            const qtyInput = input.closest('tr').querySelector('[name="item-qty"]');
+            if (qtyInput) qtyInput.focus();
+        }
+
+        // Customer Lookup System
+        function searchCustomers(query) {
+            const suggestions = document.getElementById('customer-suggestions');
+            
+            if (query.length < 2) {
+                suggestions.classList.remove('show');
+                return;
+            }
+            
+            // First search from cached customer history
+            const filtered = customerHistory.filter(customer => 
+                customer.name.toLowerCase().includes(query.toLowerCase()) ||
+                customer.phone.includes(query)
+            ).slice(0, 5);
+            
+            if (filtered.length === 0) {
+                suggestions.classList.remove('show');
+                return;
+            }
+            
+            suggestions.innerHTML = filtered.map(customer => `
+                <div class="customer-item" onclick="selectCustomer('${customer.name}', '${customer.phone}')">
+                    <div class="customer-name">${customer.name}</div>
+                    <div class="customer-phone">${customer.phone}</div>
+                </div>
+            `).join('');
+            
+            suggestions.classList.add('show');
+        }
+
+        function selectCustomer(name, phone) {
+            document.getElementById('customer-name').value = name;
+            document.getElementById('customer-phone').value = phone;
+            document.getElementById('customer-suggestions').classList.remove('show');
+            document.getElementById('customer-search').value = name;
+            
+            // Focus payment method
+            document.getElementById('payment-method').focus();
+            showToast('Customer Found', `Auto-filled details for ${name}`, 'info', 2000);
+        }
+
+        // Load customer history from server
+        async function loadCustomerHistory() {
+            try {
+                const response = await fetch('/api/customers');
+                const customers = await response.json();
+                customerHistory = customers;
+            } catch (error) {
+                console.error('Error loading customer history:', error);
+                // Fallback to building from current orders
+                buildAutoCompleteData();
+            }
+        }
+
+        // Quick Filter System
+        function setQuickFilter(filter) {
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+            
+            currentQuickFilter = filter;
+            applyQuickFilter();
+        }
+
+        function applyQuickFilter() {
+            let filtered = [...currentOrders];
+            const today = new Date().toDateString();
+            
+            switch (currentQuickFilter) {
+                case 'today':
+                    filtered = filtered.filter(order => 
+                        new Date(order.created_at).toDateString() === today
+                    );
+                    break;
+                case 'ready':
+                    filtered = filtered.filter(order => order.status === 'ready');
+                    break;
+                case 'urgent':
+                    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+                    filtered = filtered.filter(order => {
+                        return (order.status === 'ready' && new Date(order.created_at) < oneHourAgo) ||
+                               (order.status === 'received' && order.approvals.length === 0);
+                    });
+                    break;
+                case 'all':
+                default:
+                    // No filtering
+                    break;
+            }
+            
+            displayOrders(filtered);
+            updateFilterCounts();
+        }
+
+        function updateFilterCounts() {
+            const today = new Date().toDateString();
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+            
+            const counts = {
+                all: currentOrders.length,
+                today: currentOrders.filter(order => 
+                    new Date(order.created_at).toDateString() === today
+                ).length,
+                ready: currentOrders.filter(order => order.status === 'ready').length,
+                urgent: currentOrders.filter(order => 
+                    (order.status === 'ready' && new Date(order.created_at) < oneHourAgo) ||
+                    (order.status === 'received' && order.approvals.length === 0)
+                ).length
+            };
+            
+            Object.keys(counts).forEach(filter => {
+                const countElement = document.getElementById(`filter-${filter}-count`);
+                if (countElement) {
+                    countElement.textContent = counts[filter];
+                    countElement.style.display = counts[filter] > 0 ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Auto-focus System
+        function setupAutoFocus() {
+            // Focus customer search when new order tab is opened
+            const newOrderTab = document.querySelector('[onclick*="new-order"]');
+            newOrderTab.addEventListener('click', () => {
+                setTimeout(() => {
+                    const customerSearch = document.getElementById('customer-search');
+                    if (customerSearch) customerSearch.focus();
+                }, 100);
+            });
+            
+            // Setup focus events for form fields
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                field.addEventListener('focus', function() {
+                    this.closest('.form-group')?.classList.add('focused');
+                    this.classList.add('focused');
+                });
+                
+                field.addEventListener('blur', function() {
+                    this.closest('.form-group')?.classList.remove('focused');
+                    this.classList.remove('focused');
+                });
+            });
+        }
+
+        // Build auto-complete data from existing orders
+        function buildAutoCompleteData() {
+            const itemCounts = {};
+            const customers = {};
+            
+            currentOrders.forEach(order => {
+                // Build customer history
+                if (!customers[order.customer_phone]) {
+                    customers[order.customer_phone] = {
+                        name: order.customer_name,
+                        phone: order.customer_phone
+                    };
+                }
+                
+                // Build item frequency
+                if (order.items) {
+                    const items = order.items.split(',').map(item => item.trim());
+                    items.forEach(item => {
+                        const cleanItem = item.replace(/^\d+x\s*/, '').trim();
+                        if (cleanItem) {
+                            itemCounts[cleanItem] = (itemCounts[cleanItem] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            
+            // Convert to arrays
+            commonItems = Object.entries(itemCounts)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 20); // Top 20 items
+            
+            customerHistory = Object.values(customers);
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.autocomplete-container')) {
+                document.querySelectorAll('.autocomplete-suggestions').forEach(suggestions => {
+                    suggestions.classList.remove('show');
+                });
+            }
+            
+            if (!e.target.closest('.customer-lookup')) {
+                document.getElementById('customer-suggestions')?.classList.remove('show');
+            }
+        });
 
         // Check if already logged in and load logo
         window.onload = () => {
@@ -1158,12 +1801,11 @@
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
-        // Simple client-side authentication (demo only)
-const validCredentials = {
-    'manager':     'manager123',
-    'supervisor':  'super123',   // ← add comma here
-    'supervisor1': 'super123'    // new account
-};
+            // Simple client-side authentication (in production, use server-side)
+            const validCredentials = {
+                'manager': 'manager123',
+                'supervisor': 'super123'
+            };
             
             if (validCredentials[username] === password) {
                 setManagerMode(true);
@@ -1938,7 +2580,321 @@ const validCredentials = {
             }
         }
 
-        // Auto-refresh dashboard every 30 seconds
+        // Load orders
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/orders');
+                currentOrders = await response.json();
+                buildAutoCompleteData();
+                updateFilterCounts();
+                applyQuickFilter();
+                showToast('Refreshed', 'Orders updated successfully', 'success', 2000);
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showToast('Error', 'Failed to load orders', 'error');
+            }
+        }
+
+        // Filter orders by status (enhanced)
+        function filterOrders() {
+            const statusFilter = document.getElementById('status-filter').value;
+            let filtered = [...currentOrders];
+            
+            // Apply quick filter first
+            switch (currentQuickFilter) {
+                case 'today':
+                    const today = new Date().toDateString();
+                    filtered = filtered.filter(order => 
+                        new Date(order.created_at).toDateString() === today
+                    );
+                    break;
+                case 'ready':
+                    filtered = filtered.filter(order => order.status === 'ready');
+                    break;
+                case 'urgent':
+                    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+                    filtered = filtered.filter(order => {
+                        return (order.status === 'ready' && new Date(order.created_at) < oneHourAgo) ||
+                               (order.status === 'received' && order.approvals.length === 0);
+                    });
+                    break;
+            }
+            
+            // Then apply status filter
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(order => order.status === statusFilter);
+            }
+            
+            displayOrders(filtered);
+        }
+
+        // Search orders
+        async function searchOrders() {
+            const query = document.getElementById('search-input').value;
+            const status = document.getElementById('search-status-filter').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (query) params.append('q', query);
+                if (status !== 'all') params.append('status', status);
+                
+                const response = await fetch(`/api/search?${params}`);
+                const orders = await response.json();
+                
+                const resultContainer = document.getElementById('search-results');
+                if (orders.length > 0) {
+                    resultContainer.innerHTML = orders.map(order => createOrderCard(order, true)).join('');
+                    showToast('Search Results', `Found ${orders.length} matching orders`, 'info', 3000);
+                } else {
+                    resultContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; background: rgba(102, 126, 234, 0.05); border-radius: 15px; border: 2px dashed #667eea;">
+                            <h3>🔍 No Results Found</h3>
+                            <p>Try adjusting your search criteria.</p>
+                        </div>
+                    `;
+                    showToast('No Results', 'No orders match your search criteria', 'info', 3000);
+                }
+            } catch (error) {
+                console.error('Error searching orders:', error);
+                showToast('Search Error', 'Failed to search orders', 'error');
+            }
+        }
+
+        // Enhanced print label with better thermal printer support
+        async function printLabel(orderNumber) {
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}`);
+                const order = await response.json();
+                
+                if (!order.invoice_number) {
+                    showToast('Invoice Required', 'Please set invoice number before printing label', 'warning');
+                    return;
+                }
+                
+                // Fill enhanced label data
+                document.getElementById('label-order-number').textContent = order.order_number;
+                document.getElementById('label-customer-name').textContent = order.customer_name;
+                document.getElementById('label-invoice-number').textContent = order.invoice_number;
+                document.getElementById('label-payment-method').textContent = order.payment_method.toUpperCase();
+                document.getElementById('label-timestamp').textContent = new Date().toLocaleString();
+                
+                // Show and print label
+                document.getElementById('print-label').classList.add('show');
+                showToast('Printing Label', `Label ready for order ${orderNumber}`, 'info', 2000);
+                
+                setTimeout(() => {
+                    window.print();
+                    document.getElementById('print-label').classList.remove('show');
+                }, 500);
+                
+            } catch (error) {
+                showToast('Print Error', 'Failed to load order for label', 'error');
+            }
+        }
+
+        // Load recycle bin (enhanced with toast notifications)
+        async function loadRecycleBin() {
+            try {
+                const [ordersResponse, statsResponse] = await Promise.all([
+                    fetch('/api/deleted-orders'),
+                    fetch('/api/recycle-bin/stats')
+                ]);
+                
+                currentDeletedOrders = await ordersResponse.json();
+                const stats = await statsResponse.json();
+                
+                updateRecycleBinStats(stats);
+                displayDeletedOrders(currentDeletedOrders);
+                
+                if (stats.expiringSoon > 0) {
+                    showToast('Attention Required', `${stats.expiringSoon} orders expiring soon in recycle bin`, 'warning', 5000);
+                }
+            } catch (error) {
+                console.error('Error loading recycle bin:', error);
+                showToast('Error', 'Failed to load recycle bin', 'error');
+                document.getElementById('recycle-bin-container').innerHTML = '<p>❌ Error loading recycle bin</p>';
+            }
+        }
+
+        // Restore order from recycle bin
+        async function restoreOrder(orderNumber) {
+            if (!confirm('♻️ Restore this order back to active orders?')) return;
+            
+            const managerName = localStorage.getItem('managerName') || 'manager';
+            
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}/restore`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ staffName: managerName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Order Restored', `Order ${orderNumber} restored successfully!`, 'success');
+                    loadRecycleBin();
+                    loadDashboard();
+                } else {
+                    showToast('Restore Failed', result.error || 'Could not restore order', 'error');
+                }
+            } catch (error) {
+                console.error('Restore error:', error);
+                showToast('Network Error', 'Please check your connection and try again', 'error');
+            }
+        }
+
+        // Permanently delete order
+        async function permanentlyDeleteOrder(orderNumber) {
+            if (!confirm('⚠️ PERMANENTLY DELETE this order?\n\n• This action CANNOT be undone\n• Order data will be exported for records\n• Order will be removed from all systems\n\nAre you absolutely sure?')) return;
+            
+            const managerName = localStorage.getItem('managerName') || 'manager';
+            
+            try {
+                const response = await fetch(`/api/deleted-orders/${orderNumber}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ staffName: managerName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Permanently Deleted', `Order permanently deleted. Exported to: ${result.exportedTo || 'Export failed'}`, 'info', 6000);
+                    loadRecycleBin();
+                    loadDashboard();
+                } else {
+                    showToast('Delete Failed', result.error || 'Could not permanently delete order', 'error');
+                }
+            } catch (error) {
+                console.error('Permanent delete error:', error);
+                showToast('Network Error', 'Please check your connection and try again', 'error');
+            }
+        }
+
+        // Confirm empty all recycle bin
+        async function confirmEmptyRecycleBin() {
+            if (currentDeletedOrders.length === 0) {
+                showToast('Already Empty', 'Recycle bin is already empty', 'info');
+                return;
+            }
+            
+            if (!confirm(`⚠️ EMPTY ENTIRE RECYCLE BIN?\n\n• This will permanently delete ${currentDeletedOrders.length} orders\n• All order data will be exported for records\n• This action CANNOT be undone\n\nAre you absolutely sure?`)) return;
+            
+            const managerName = localStorage.getItem('managerName') || 'manager';
+            let successCount = 0;
+            let failCount = 0;
+            
+            showToast('Processing', 'Emptying recycle bin...', 'info', 10000);
+            
+            for (const order of currentDeletedOrders) {
+                try {
+                    const response = await fetch(`/api/deleted-orders/${order.order_number}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ staffName: managerName })
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                    }
+                } catch (error) {
+                    failCount++;
+                }
+            }
+            
+            const message = `Successfully deleted: ${successCount} orders${failCount > 0 ? `. Failed: ${failCount} orders` : ''}. All data exported for records.`;
+            showToast('Recycle Bin Emptied', message, 'success', 6000);
+            
+            loadRecycleBin();
+            loadDashboard();
+        }
+
+        // Logo upload functionality (enhanced)
+        document.getElementById('logo-upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const logoFile = document.getElementById('logo-file').files[0];
+            const managerName = localStorage.getItem('managerName') || 'manager';
+            
+            if (!logoFile) {
+                showToast('File Required', 'Please select a logo file', 'warning');
+                return;
+            }
+            
+            // Validate file size (5MB limit)
+            if (logoFile.size > 5 * 1024 * 1024) {
+                showToast('File Too Large', 'Logo file must be less than 5MB', 'error');
+                return;
+            }
+            
+            // Validate file type
+            if (!logoFile.type.startsWith('image/')) {
+                showToast('Invalid File', 'Please select an image file', 'error');
+                return;
+            }
+            
+            formData.append('logo', logoFile);
+            formData.append('staffName', managerName);
+            
+            try {
+                showToast('Uploading', 'Uploading your logo...', 'info', 3000);
+                
+                const response = await fetch('/api/upload-logo', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Logo Uploaded', 'Company logo updated successfully!', 'success');
+                    loadLogo(); // Reload the logo
+                    setTimeout(() => {
+                        closeLogoUploadModal();
+                    }, 2000);
+                } else {
+                    showToast('Upload Failed', result.error || 'Error uploading logo', 'error');
+                }
+            } catch (error) {
+                showToast('Upload Error', 'Network error occurred during upload', 'error');
+            }
+        });
+
+        // Enhanced login with toast notifications
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            
+            // Simple client-side authentication (in production, use server-side)
+            const validCredentials = {
+                'manager': 'manager123',
+                'supervisor': 'super123'
+            };
+            
+            if (validCredentials[username] === password) {
+                setManagerMode(true);
+                localStorage.setItem('managerLoggedIn', 'true');
+                localStorage.setItem('managerName', username);
+                closeLoginModal();
+                showToast('Login Successful', `Welcome ${username}! Manager features enabled.`, 'success', 4000);
+            } else {
+                showToast('Login Failed', 'Invalid username or password', 'error');
+            }
+        }
+
+        // Show alert message (legacy function - replaced by toast)
+        function showAlert(containerId, message, type) {
+            // Convert to toast notification instead
+            const title = type === 'success' ? 'Success' : 'Error';
+            showToast(title, message, type);
+        }
+
+        // Auto-refresh with toast notification
         setInterval(() => {
             if (document.getElementById('dashboard').classList.contains('active')) {
                 loadDashboard();
@@ -1957,15 +2913,76 @@ const validCredentials = {
                 closeLogoUploadModal();
             }
         }
-        /* === register service worker – PASTE AT VERY END ============== */
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-        .register('/service-worker.js')
-        .then(() => console.log('[SW] Registered'))
-        .catch(err => console.error('[SW] Error', err));
-}
-/* ============================================================== */
 
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Only work when not typing in input fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n': // Ctrl+N for new order
+                        e.preventDefault();
+                        document.querySelector('[onclick*="new-order"]').click();
+                        showToast('Shortcut Used', 'Switched to New Order tab', 'info', 2000);
+                        break;
+                    case 'f': // Ctrl+F for search
+                        e.preventDefault();
+                        document.querySelector('[onclick*="search"]').click();
+                        setTimeout(() => document.getElementById('search-input').focus(), 100);
+                        showToast('Shortcut Used', 'Switched to Search tab', 'info', 2000);
+                        break;
+                    case 'r': // Ctrl+R for refresh
+                        e.preventDefault();
+                        if (document.getElementById('orders').classList.contains('active')) {
+                            loadOrders();
+                        } else if (document.getElementById('dashboard').classList.contains('active')) {
+                            loadDashboard();
+                        } else if (document.getElementById('recycle-bin')?.classList.contains('active')) {
+                            loadRecycleBin();
+                        }
+                        break;
+                }
+            }
+        });
+
+        // Initialize tooltips and help text
+        function initializeHelpSystem() {
+            // Add keyboard shortcut hints
+            const helpHint = document.createElement('div');
+            helpHint.style.cssText = `
+                position: fixed;
+                bottom: 10px;
+                left: 10px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                z-index: 1000;
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
+            `;
+            helpHint.innerHTML = '💡 Shortcuts: Ctrl+N (New Order) | Ctrl+F (Search) | Ctrl+R (Refresh)';
+            document.body.appendChild(helpHint);
+            
+            // Hide after 10 seconds
+            setTimeout(() => {
+                helpHint.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(helpHint), 300);
+            }, 10000);
+        }
+
+        // Initialize help system after page load
+        setTimeout(initializeHelpSystem, 3000);
+
+        // Welcome message for first-time users
+        if (!localStorage.getItem('welcomed')) {
+            setTimeout(() => {
+                showToast('Welcome!', 'Welcome to Wickrama Hardware Pickup System. Use Ctrl+N for new orders!', 'info', 6000);
+                localStorage.setItem('welcomed', 'true');
+            }, 2000);
+        }
     </script>
 </body>
 </html>
