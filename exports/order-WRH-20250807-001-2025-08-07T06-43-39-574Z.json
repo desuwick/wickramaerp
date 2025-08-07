@@ -1,0 +1,24 @@
+{
+  "order_number": "WRH-20250807-001",
+  "customer_name": "pasi",
+  "customer_phone": "000000",
+  "items": "11x cccc",
+  "payment_method": "cash",
+  "invoice_number": "",
+  "status": "deleted",
+  "created_at": "2025-08-07T06:23:03.886Z",
+  "created_by": "ranga",
+  "approvals": [],
+  "status_history": [
+    {
+      "status": "received",
+      "timestamp": "2025-08-07T06:23:03.886Z",
+      "staff": "ranga"
+    }
+  ],
+  "deleted_at": "2025-08-07T06:43:27.163Z",
+  "deleted_by": "supervisor",
+  "original_status": "received",
+  "exported_at": "2025-08-07T06:43:39.574Z",
+  "export_reason": "permanent_deletion"
+}
