@@ -1056,24 +1056,6 @@
         let recycleBinStats = {};
         let isManagerLoggedIn = false;
 
-        /* ===========================================================
-   WhatsApp helpers – PASTE DIRECTLY ABOVE window.onload
-   ===========================================================*/
-function formatPhoneForWhatsApp(raw) {
-    // Strip non-digits, convert 0xxxxxxxxx ➜ 94xxxxxxxxx
-    let d = raw.replace(/\D/g, '');
-    if (d.startsWith('0')) d = '94' + d.slice(1);
-    return d;
-}
-function buildWhatsAppLink(phone, orderNo) {
-    const msg = encodeURIComponent(
-        `Your order ${orderNo} is ready for pickup at Wickrama Hardware. Thank you!`
-    );
-    return `https://wa.me/${formatPhoneForWhatsApp(phone)}?text=${msg}`;
-}
-/* ===========================================================*/
-
-
         // Check if already logged in and load logo
         window.onload = () => {
             const savedManager = localStorage.getItem('managerLoggedIn');
@@ -1613,12 +1595,6 @@ const validCredentials = {
                 
                 if (result.success) {
                     alert(`✅ Order status updated to: ${status.toUpperCase()}`);
-                        // >>> NEW – open WhatsApp when status becomes "ready"
-    if (status === 'ready') {
-        const ord = currentOrders.find(o => o.order_number === orderNumber);
-        if (ord) window.open(buildWhatsAppLink(ord.customer_phone, ord.order_number), '_blank');
-    }
-    // <<< END NEW
                     loadOrders();
                     loadDashboard();
                 } else {
@@ -1981,6 +1957,15 @@ const validCredentials = {
                 closeLogoUploadModal();
             }
         }
+        /* === register service worker – PASTE AT VERY END ============== */
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+        .register('/service-worker.js')
+        .then(() => console.log('[SW] Registered'))
+        .catch(err => console.error('[SW] Error', err));
+}
+/* ============================================================== */
+
     </script>
 </body>
 </html>
