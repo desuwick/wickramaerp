@@ -1158,12 +1158,12 @@
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value.trim();
             
-            // Simple client-side authentication (in production, use server-side)
-            const validCredentials = {
-                'manager': 'manager123',
-                'supervisor': 'super123'
-                
-            };
+        // Simple client-side authentication (demo only)
+const validCredentials = {
+    'manager':     'manager123',
+    'supervisor':  'super123',   // ← add comma here
+    'supervisor1': 'super123'    // new account
+};
             
             if (validCredentials[username] === password) {
                 setManagerMode(true);
