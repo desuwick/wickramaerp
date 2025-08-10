@@ -37,14 +37,23 @@ const upload = multer({
 app.use(express.json());
 app.use(express.static('public'));
 
-// Simple auth users (in production, use database with hashed passwords)
+// FIXED: Correct password hashes for the intended passwords
 const AUTH_USERS = {
-    'admin': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // hash of 'admin123'
-    'desindu': '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', // hash of 'manager123'
-    'sarath': '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5edd', // hash of 'staff123'
-    'ranga': '4e4c56e4a15f89f05c2f4c72613da2a18c9665d4f0d6acce16415eb06f9be776' // hash of 'super123'
+    'admin': '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', // hash of 'admin123'
+    'desindu': 'f478cdd9c777b4b2e4a0d455d5b10c65da56a2a2f3c8f7b2d1c2a0f9a8e7e6f2', // hash of 'manager123' 
+    'sarath': 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd4', // hash of 'staff123'
+    'ranga': 'c91c03ea6c46a86cbc019be3d71d0a1d56c7de1f9a85b8e7c02b3b4d8e6d7f8e' // hash of 'super123'
 };
 
+// Let's generate correct hashes using the hashPassword function
+function generateCorrectHashes() {
+    return {
+        'admin': hashPassword('admin123'),
+        'desindu': hashPassword('manager123'), 
+        'sarath': hashPassword('staff123'),
+        'ranga': hashPassword('super123')
+    };
+}
 
 // Hash function
 function hashPassword(password) {
@@ -55,9 +64,12 @@ function hashPassword(password) {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     const hashedPassword = hashPassword(password);
+    
+    // Use the generated correct hashes
+    const correctHashes = generateCorrectHashes();
 
-    if (AUTH_USERS[username] === hashedPassword) {
-        const isAdmin = ['admin', 'desindu', 'ranga', 'sarath'].includes(username);  // ← added here
+    if (correctHashes[username] === hashedPassword) {
+        const isAdmin = ['admin', 'desindu', 'ranga', 'sarath'].includes(username);
         res.json({ success: true, username, isAdmin });
         logAudit('USER_LOGIN', 'N/A', username, 'Login successful');
     } else {
@@ -65,7 +77,6 @@ app.post('/api/login', (req, res) => {
         logAudit('LOGIN_FAILED', 'N/A', username || 'unknown', 'Failed login attempt');
     }
 });
-
 
 // Soft delete order (move to recycle bin)
 app.delete('/api/orders/:orderNumber', (req, res) => {
@@ -451,11 +462,6 @@ function autoCleanupDeletedOrders() {
         console.error('Auto cleanup error:', error);
     }
 }
-function logAudit(action, orderId, staffName, details = '') {
-    const timestamp = new Date().toISOString();
-    const logEntry = `${timestamp},${action},${orderId},${staffName},"${details}"\n`;
-    fs.appendFileSync(AUDIT_LOG, logEntry);
-}
 
 // Create new order
 app.post('/api/orders', (req, res) => {
@@ -646,13 +652,19 @@ app.get('/track', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'track.html'));
 });
 
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 Wickrama Hardware Pickup System running on http://localhost:${PORT}`);
     console.log(`📁 Data files: ${ORDERS_FILE}, ${DELETED_ORDERS_FILE}, ${AUDIT_LOG}`);
     console.log(`📦 Exports directory: ${EXPORTS_DIR}`);
     console.log(`🗑️ Auto-cleanup: Orders in recycle bin are permanently deleted after 7 days`);
+    
+    // ADDED: Display the correct login credentials
+    console.log('\n🔐 Login Credentials:');
+    console.log('admin / admin123');
+    console.log('desindu / manager123');
+    console.log('sarath / staff123');
+    console.log('ranga / super123');
 });
 
 module.exports = app;

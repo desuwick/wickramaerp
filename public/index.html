@@ -1170,7 +1170,7 @@ function buildWhatsAppLink(phone, orderNo) {
             document.getElementById('login-alert').innerHTML = '';
         }
 
-// Manager login (SERVER AUTHENTICATION)
+// FIXED: Manager login with form clearing for security
 async function login(event) {
     event.preventDefault();
     const username = document.getElementById('login-username').value.trim();
@@ -1186,17 +1186,35 @@ async function login(event) {
         const result = await response.json();
 
         if (result.success) {
+            // SECURITY FIX: Clear login form immediately after successful login
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            
             setManagerMode(true);
             localStorage.setItem('managerLoggedIn', 'true');
             localStorage.setItem('managerName', username);
             closeLoginModal();
             showAlert('login-alert', '', 'success');
         } else {
+            // SECURITY FIX: Clear password field even on failed login
+            document.getElementById('login-password').value = '';
             showAlert('login-alert', result.error || 'Invalid credentials', 'error');
         }
     } catch (err) {
+        // SECURITY FIX: Clear password field on network error
+        document.getElementById('login-password').value = '';
         showAlert('login-alert', 'Network error', 'error');
     }
+}
+
+// ADDITIONAL SECURITY: Clear login form when modal is closed
+function closeLoginModal() {
+    document.getElementById('login-modal').classList.remove('show');
+    document.getElementById('login-alert').innerHTML = '';
+    
+    // SECURITY FIX: Clear all form fields when closing modal
+    document.getElementById('login-username').value = '';
+    document.getElementById('login-password').value = '';
 }
 
         // Logout
